@@ -44,9 +44,11 @@
         <version>3.2</version>
       </dependency>
       <dependency>
+        <systemPath>${env.ANDROID_HOME}/extras/android/support/v4/android-support-v4.jar</systemPath>
         <groupId>com.google.android</groupId>
         <artifactId>support-v4</artifactId>
-        <version>r7</version>
+        <version>19.0.1</version>
+        <scope>system</scope>
       </dependency>
       <dependency>
         <groupId>org.robolectric</groupId>
