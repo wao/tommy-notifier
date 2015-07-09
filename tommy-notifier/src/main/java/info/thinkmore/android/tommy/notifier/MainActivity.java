@@ -32,31 +32,6 @@ public class MainActivity
     @SystemService
     TelephonyManager telephonyMgr;
 
-    PhoneStateListener phoneStateListener = new PhoneStateListener(){
-        @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
-            super.onCallStateChanged(state, incomingNumber);
-
-            switch (state) {
-                case TelephonyManager.CALL_STATE_IDLE:
-                    //when Idle i.e no call
-                    Toast.makeText(MainActivity.this, "Phone state Idle", Toast.LENGTH_LONG).show();
-                    break;
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                    //when Off hook i.e in call
-                    //Make intent and start your service here
-                    Toast.makeText(MainActivity.this, "Phone state Off hook", Toast.LENGTH_LONG).show();
-                    break;
-                case TelephonyManager.CALL_STATE_RINGING:
-                    //when Ringing
-                    Toast.makeText(MainActivity.this, "Phone state Ringing", Toast.LENGTH_LONG).show();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
     @AfterViews
     void afterViews() {
         //telephonyMgr.listen( phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE ); 
@@ -69,43 +44,17 @@ public class MainActivity
         return true;
     }
 
-    ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    boolean ring = false;
+
 
     @Click(R.id.btnNotify)
     public void btnNotifyClicked(View clickedView){
-        //NotifierService_.intent( getApplicationContext() ).start();
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setContentTitle("Test annotation").setContentText("Content info").setSmallIcon( R.drawable.ic_action_search );
-        final Notification note = builder.build();
-        nm.notify( 12, note );
-
-
-
-        final Runnable reload = new Runnable(){
-            @Override
-            public void run(){
-                nm.cancel( 12 );
-                nm.notify( 12, note );
-            }
-        };
-
-        final Runnable reload2 = new Runnable(){
-            @Override
-            public void run(){
-                handler.post( reload );
-            }
-        };
-
-
-        scheduler.scheduleAtFixedRate( reload2, 0, 1, TimeUnit.SECONDS);
-
-        handler.postDelayed( new Runnable(){
-            @Override
-            public void run(){
-                scheduler.shutdown();
-            }
-        }, 1000 * 10L );
-
+        if( ring ){
+            ring = false;
+            NotifierApp.getInstance().getService().phoneOffhook();
+        }else{
+            ring = true;
+            NotifierApp.getInstance().getService().phoneRinging("12345678");
+        }
     }  
 }

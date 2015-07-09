@@ -1,109 +1,126 @@
 package info.thinkmore.android.tommy.notifier;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.androidannotations.annotations.EIntentService;
 import org.androidannotations.annotations.EService;
+import org.androidannotations.annotations.ServiceAction;
 import org.androidannotations.annotations.SystemService;
 
+import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 @EService
 public class NotifierService extends Service {
     static final String TAG = "TommyNotifer_Service";
 
-    @SystemService
-    NotificationManager nm;
+    // Binder given to clients
+    private final Binder mBinder = new LocalBinder();
 
-    @SystemService
-    TelephonyManager telephonyMgr;
-
-    
-    class MyPhoneStateListener extends PhoneStateListener{
-
-        Field subscription;
-        
-        public MyPhoneStateListener(){
-            try{
-                subscription = this.getClass().getDeclaredField("mSubscription");
-                subscription.setAccessible(true);
-            }catch(Exception e){
-                throw new RuntimeException(e);
-            }
+    public class LocalBinder extends Binder {
+        NotifierService getService() {
+            // Return this instance of LocalService so clients can call public methods
+            return NotifierService.this;
         }
-
-        int getSubscription(){
-            try{
-                return subscription.getInt( this );
-            }catch(Exception e){
-                throw new RuntimeException(e);
-            }
-        }
-
-        void setSubscription(int value){
-            try{
-                subscription.setInt( this, value );
-            }catch(Exception e){
-                throw new RuntimeException(e);
-            }
-        }
-
-        @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
-            super.onCallStateChanged(state, incomingNumber);
-
-            switch (state) {
-                case TelephonyManager.CALL_STATE_IDLE:
-                    //when Idle i.e no call
-                    Log.v( TAG, "Phone idle" );
-                    break;
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                    //when Off hook i.e in call
-                    Log.v( TAG, "Phone off hook" );
-                    break;
-                case TelephonyManager.CALL_STATE_RINGING:
-                    //when Ringing
-                    Log.v( TAG, "Phone ringing" );
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
-    MyPhoneStateListener phoneStateListenerA;
-    MyPhoneStateListener phoneStateListenerB;
-
-    boolean alreadyRun = false;
-
-
-    //ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.v( TAG, "Service started!" );
-        if( !alreadyRun ){
-            alreadyRun = true;
-            Log.v( TAG, "Listener begin!" );
-            phoneStateListenerA = new MyPhoneStateListener();
-            phoneStateListenerB = new MyPhoneStateListener();
-            phoneStateListenerA.setSubscription( 0 );
-            phoneStateListenerB.setSubscription( 1 );
-            telephonyMgr.listen( phoneStateListenerA, PhoneStateListener.LISTEN_CALL_STATE );
-            telephonyMgr.listen( phoneStateListenerB, PhoneStateListener.LISTEN_CALL_STATE );
-            Log.v( TAG, "Listener registered!" );
-        }
-
-        return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;  //don't support bind
+        return mBinder;
     }
 
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        // We want this service to continue running until it is explicitly
+        // stopped, so return sticky.
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        if( phoneRingScheduler != null ){
+            phoneRingScheduler.shutdownNow();
+            phoneRingScheduler = null;
+            nm.cancelAll();
+        }
+    }
+
+    @SystemService
+    NotificationManager nm;
+
+    public void phoneIdle(){
+        Log.v( TAG, "phoneIdle()" );
+        stopPhoneRinging();
+    }
+
+    public void phoneRinging(String incomingNumber){
+        startPhoneRinging(incomingNumber);
+    }
+
+    public void phoneOffhook(){
+        Log.v( TAG, "phoneOffhook()" );
+        stopPhoneRinging();
+    }
+
+    int phoneStateNotificationId = 12;
+
+    Notification phoneStateNotification;
+
+    ScheduledExecutorService phoneRingScheduler;
+
+    final Runnable doCancel = new Runnable(){
+        @Override
+        public void run(){
+            nm.cancel( phoneStateNotificationId );
+        }
+    };
+
+    final Runnable doNotify = new Runnable(){
+        @Override
+        public void run(){
+            nm.notify( phoneStateNotificationId, phoneStateNotification );
+        }
+    };
+
+    Handler uiHandler = new Handler();
+
+    final Runnable invokeNotifyOperation = new Runnable(){
+        @Override
+        public void run(){
+            uiHandler.post( doNotify );
+        }
+    };
+
+    void startPhoneRinging(String incomingNumber){
+        if( phoneRingScheduler == null ){
+            Log.v(TAG, "Start ringing!" );
+            phoneRingScheduler = Executors.newSingleThreadScheduledExecutor();
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+            builder.setContentTitle("incoming call:"+incomingNumber).setSmallIcon( R.drawable.ic_action_search );
+            phoneStateNotification = builder.build();
+            phoneRingScheduler.scheduleAtFixedRate( invokeNotifyOperation, 5, 2, TimeUnit.SECONDS);
+        }
+    }
+
+    void stopPhoneRinging(){
+        if( phoneRingScheduler != null ){
+            Log.v(TAG, "Stop ringing!" );
+            phoneRingScheduler.shutdownNow();
+            uiHandler.post( doCancel );
+            phoneRingScheduler = null;
+            //??? Maybe reuse phoneStateNotification
+            phoneStateNotification = null;
+        }
+    }
 }

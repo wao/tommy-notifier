@@ -13,6 +13,7 @@
     <application
             android:icon="@drawable/ic_launcher"
             android:theme="@style/AppTheme"
+            android:name="NotifierApp"
             android:label="@string/app_name" >
         <service android:name=".NotifierService_" />
         <receiver android:name=".PhoneStateBroadcastReceiver_" >

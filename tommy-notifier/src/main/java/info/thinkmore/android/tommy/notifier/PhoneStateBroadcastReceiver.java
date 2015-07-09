@@ -1,13 +1,14 @@
 package info.thinkmore.android.tommy.notifier;
 
 import org.androidannotations.annotations.EReceiver;
-import org.androidannotations.annotations.SystemService;
+import org.androidannotations.annotations.ReceiverAction;
 
-import android.app.NotificationManager;
+import android.app.Application;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.telephony.PhoneStateListener;
+import android.content.ServiceConnection;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -15,44 +16,32 @@ import android.util.Log;
 public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
     static final String TAG = "TommyNotifer_Receiver";
 
-    @SystemService
-    NotificationManager nm;
+    NotifierApp getApplication(){
+        return NotifierApp.getInstance();
+    }
 
-    @SystemService
-    TelephonyManager telephonyMgr;
+    NotifierService getService(){
+        return getApplication().getService();
+    }
 
-    class MyPL extends PhoneStateListener{
-        @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
-            super.onCallStateChanged(state, incomingNumber);
 
-            switch (state) {
-                case TelephonyManager.CALL_STATE_IDLE:
-                    //when Idle i.e no call
-                    Log.v( TAG, "Phone idle" );
-                    break;
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                    //when Off hook i.e in call
-                    Log.v( TAG, "Phone off hook" );
-                    break;
-                case TelephonyManager.CALL_STATE_RINGING:
-                    //when Ringing
-                    Log.v( TAG, "Phone ringing" );
-                    break;
-                default:
-                    break;
+    @ReceiverAction( TelephonyManager.ACTION_PHONE_STATE_CHANGED )
+    void phoneStateChangedAction(@ReceiverAction.Extra("state") String state, @ReceiverAction.Extra(TelephonyManager.EXTRA_INCOMING_NUMBER) String incomingNumber ) {
+        Log.v( TAG, "Call State Changed: " + state  );
+        if( getService() != null ){
+            if( "IDLE".equals(state) ){
+                getService().phoneIdle();
+            }else if( "RINGING".equals(state) ){
+                getService().phoneRinging(incomingNumber);
+            }else if( "OFFHOOK".equals(state) ){
+                getService().phoneOffhook();
+            }else{
+                throw new RuntimeException(String.format( "Unknown phone state: %s", state ) );
             }
         }
-    };
+    }
 
-    static PhoneStateListener phoneStateListener;
-
-	@Override
-	public void onReceive(Context context, Intent intent) {
-        Log.v( TAG, "Call State Changed: " + intent.getStringExtra("state")  );
-        //if( phoneStateListener == null ){
-            //phoneStateListener = new MyPL();
-            //telephonyMgr.listen( phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE );
-        //}
-	}
+    @Override
+    public void onReceive(Context context, Intent intent) {
+    }
 }
