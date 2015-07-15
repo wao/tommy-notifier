@@ -3,7 +3,9 @@ gen/
 target/
 build/
 .gradle/
+.idea/
 .apt_generated/
 .factorypath
 .classpath
 .*.swp
+local.properties
