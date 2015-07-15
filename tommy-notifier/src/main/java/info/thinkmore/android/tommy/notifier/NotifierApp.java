@@ -5,9 +5,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 
 public class NotifierApp extends Application {
+    static final String TAG = "TommyNotifer_Application";
 
     private static NotifierApp singleton;
 
@@ -21,7 +24,7 @@ public class NotifierApp extends Application {
         super.onCreate();
         singleton = this;
         //try to bind service here.
-        getService();
+        loadService();
     }
 
     @Override
@@ -39,17 +42,26 @@ public class NotifierApp extends Application {
         super.onConfigurationChanged(newConfig);
     }
 
-    NotifierService mService;
-    boolean mBound = false;
+    protected NotifierService mService;
+    protected boolean  mBound = false;
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection mConnection = new ServiceConnection() {
 
+        Handler handler = new Handler();
+
         @Override
         public void onServiceConnected(ComponentName className,
                 IBinder service) {
-            if( info.thinkmore.SimpleAssert.enable ){
-                info.thinkmore.SimpleAssert.assertTrue(service != null);
+            if( service == null ){
+                Log.e( TAG, "Bind server got null:retry 1000ms later" );
+                handler.postDelayed( new Runnable(){
+                    @Override
+                    public void run(){
+                        loadService();
+                    }
+                }, 1000 );
+                return;
             }
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             NotifierService.LocalBinder binder = (NotifierService.LocalBinder) service;
@@ -63,11 +75,13 @@ public class NotifierApp extends Application {
         }
     };
 
-    NotifierService getService(){
+    public void loadService(){
         if( !mBound ){
             bindService( NotifierService_.intent(this).get(), mConnection, Context.BIND_AUTO_CREATE );
         }
+    }
 
+    NotifierService getService(){
         return mService;
     }
 }

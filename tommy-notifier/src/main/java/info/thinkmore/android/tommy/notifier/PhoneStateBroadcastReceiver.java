@@ -24,6 +24,11 @@ public class PhoneStateBroadcastReceiver extends BroadcastReceiver {
         return getApplication().getService();
     }
 
+    @ReceiverAction( "android.intent.action.BOOT_COMPLETED" )
+    void bootCompleted(){
+        Log.v( TAG, "Boot completed!" );
+        NotifierService_.intent(getApplication()).start();
+    }
 
     @ReceiverAction( TelephonyManager.ACTION_PHONE_STATE_CHANGED )
     void phoneStateChangedAction(@ReceiverAction.Extra("state") String state, @ReceiverAction.Extra(TelephonyManager.EXTRA_INCOMING_NUMBER) String incomingNumber ) {
