@@ -33,7 +33,10 @@ android {
         compile "org.androidannotations:androidannotations-api:3.2"
         compile "com.android.support:support-v4:22.2.0"
         compile "info.thinkmore:simple-assert:1.0-SNAPSHOT"
+        testCompile "junit:junit:4.12"
+        testCompile "org.robolectric:robolectric:3.0-rc3"
     }
+
 }
 
 
