@@ -1,4 +1,0 @@
-# vim: set ft=ruby
-ThinWestLake.project "info.thinkmore.android", "tommy-notifier", "0.0.1-SNAPSHOT" do
-    android
-end
