@@ -1,6 +1,8 @@
 bin/
 gen/
 target/
+build/
+.gradle/
 .apt_generated/
 .factorypath
 .classpath
