@@ -10,7 +10,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class NotifierApp extends Application {
-    static final String TAG = "TommyNotifer_Application";
+    static final String TAG = "TommyNotiferApp";
 
     private static NotifierApp singleton;
 

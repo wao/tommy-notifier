@@ -26,7 +26,7 @@ import org.androidannotations.annotations.*;
 @EActivity(R.layout.activity_main)
 public class MainActivity extends Activity {
 
-    final static String TAG = "TommyNofity_MainActivity";
+    final static String TAG = "TommyNotifyMainA";
 
     Handler handler = new Handler();
 
@@ -46,6 +46,8 @@ public class MainActivity extends Activity {
         //NotifierService_.intent( getApplicationContext() ).start();
         String listeners = Secure.getString(getContentResolver(), "enabled_notification_listeners");
         Log.v(TAG, listeners);
+
+        handler.post(()->Log.v(TAG, "output in lambada"));
     }
 
     @Override

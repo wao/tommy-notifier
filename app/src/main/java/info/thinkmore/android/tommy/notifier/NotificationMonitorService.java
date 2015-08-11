@@ -5,7 +5,7 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 public class NotificationMonitorService extends NotificationListenerService {
-    static final String TAG = "TommyNotifer_NotifictaionMonitorService";
+    static final String TAG = "TommyNotiferNFMonitorS";
 
     @Override
     public void onNotificationPosted( StatusBarNotification sbn ) {
