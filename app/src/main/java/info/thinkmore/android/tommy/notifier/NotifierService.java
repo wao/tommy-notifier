@@ -1,16 +1,12 @@
 package info.thinkmore.android.tommy.notifier;
 
-import java.lang.reflect.Field;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.androidannotations.annotations.EIntentService;
 import org.androidannotations.annotations.EService;
-import org.androidannotations.annotations.ServiceAction;
 import org.androidannotations.annotations.SystemService;
 
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
