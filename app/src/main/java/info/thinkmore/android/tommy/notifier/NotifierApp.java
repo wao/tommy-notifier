@@ -9,6 +9,22 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import org.acra.ACRA;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.sender.HttpSender;
+
+import static org.acra.ACRA.*;
+import static org.acra.sender.HttpSender.*;
+import static org.acra.sender.HttpSender.Type.*;
+
+@ReportsCrashes(
+    formKey = "",
+    httpMethod = Method.PUT,
+    reportType = JSON,
+    formUri = "http://acra-02a923.smileupps.com/acra-myapp-133e04/_design/acra-storage/_update/report",
+    formUriBasicAuthLogin = "notifier",
+    formUriBasicAuthPassword = "tommy"
+)
 public class NotifierApp extends Application {
     static final String TAG = "TommyNotiferApp";
 
@@ -22,6 +38,9 @@ public class NotifierApp extends Application {
     @Override
     public final void onCreate() {
         super.onCreate();
+
+        ACRA.init(this);
+
         singleton = this;
         //try to bind service here.
         loadService();

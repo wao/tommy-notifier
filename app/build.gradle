@@ -59,6 +59,9 @@ dependencies {
     compile 'org.androidannotations:androidannotations-api:3.2'
     compile 'com.android.support:support-v4:22.2.0'
     compile 'info.thinkmore:simple-assert:1.0-SNAPSHOT'
+
+    compile 'ch.acra:acra:4.5.+'
+
     // Robolectric
     testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
