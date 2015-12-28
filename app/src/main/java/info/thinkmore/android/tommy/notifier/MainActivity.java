@@ -29,6 +29,7 @@ public class MainActivity extends Activity {
     final static String TAG = "TommyNotifyMainA";
 
     Handler handler = new Handler();
+    Handler fake = null;
 
     @SystemService
     NotificationManager nm;
@@ -45,7 +46,8 @@ public class MainActivity extends Activity {
         //telephonyMgr.listen( phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE ); 
         //NotifierService_.intent( getApplicationContext() ).start();
         String listeners = Secure.getString(getContentResolver(), "enabled_notification_listeners");
-        Log.v(TAG, listeners);
+
+        //Log.v(TAG, listeners);
 
         handler.post(()->Log.v(TAG, "output in lambada"));
     }
@@ -61,6 +63,7 @@ public class MainActivity extends Activity {
 
     @Click(R.id.btnNotify)
     public void btnNotifyClicked(View clickedView){
+        //fake.post(()->Log.v(TAG, "output in lambada")); //should trigger crash here.
         if( ring ){
             ring = false;
             NotifierApp.getInstance().getService().phoneOffhook();

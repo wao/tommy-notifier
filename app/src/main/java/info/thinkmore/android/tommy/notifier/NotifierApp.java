@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import org.acra.ACRA;
+import org.acra.ReportField;
+import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.acra.sender.HttpSender;
 
@@ -17,13 +19,16 @@ import static org.acra.ACRA.*;
 import static org.acra.sender.HttpSender.*;
 import static org.acra.sender.HttpSender.Type.*;
 
+//formUri = "http://acra-02a923.smileupps.com/acra-myapp-133e04/_design/acra-storage/_update/report",
+//formUriBasicAuthLogin = "notifier",
+//formUriBasicAuthPassword = "tommy"
 @ReportsCrashes(
-    formKey = "",
-    httpMethod = Method.PUT,
-    reportType = JSON,
-    formUri = "http://acra-02a923.smileupps.com/acra-myapp-133e04/_design/acra-storage/_update/report",
-    formUriBasicAuthLogin = "notifier",
-    formUriBasicAuthPassword = "tommy"
+    socketTimeout = 10000,
+    httpMethod = HttpSender.Method.POST,
+    reportType = HttpSender.Type.JSON,
+    formUri = "http://yangchen.cloudant.com/acra-internal/_design/acra-storage/_update/report",
+    formUriBasicAuthLogin = "scasheyeveduespackiedgai",
+    formUriBasicAuthPassword = "75de5a4fec27bba90752d63069274a19ca0f9605"
 )
 public class NotifierApp extends Application {
     static final String TAG = "TommyNotiferApp";

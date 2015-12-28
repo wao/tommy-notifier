@@ -18,8 +18,8 @@ apply plugin: 'android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 repositories{
-    jcenter()
     mavenLocal()
+    jcenter()
 }
 
 
@@ -57,10 +57,10 @@ dependencies {
     provided 'org.projectlombok:lombok:1.16.4'
     apt "org.androidannotations:androidannotations:3.2"
     compile 'org.androidannotations:androidannotations-api:3.2'
-    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:support-v4:23.0.1'
     compile 'info.thinkmore:simple-assert:1.0-SNAPSHOT'
 
-    compile 'ch.acra:acra:4.5.+'
+    compile 'ch.acra:acra:4.6.+'
 
     // Robolectric
     testCompile 'junit:junit:4.12'
@@ -72,8 +72,10 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
     // Testing-only dependencies
-    androidTestCompile 'com.android.support.test:runner:0.3'
-    androidTestCompile 'com.android.support.test:rules:0.3'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2'
+    androidTestCompile 'com.android.support.test:runner:0.4.+'
+    androidTestCompile 'com.android.support.test:rules:0.4.+'
+    androidTestCompile ( 'com.android.support.test.espresso:espresso-core:2.2.+' ){
+        exclude group: 'com.android.support', module: 'suport-annotations'
+    }
 }
 
